@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { TopNav } from "@/components/layout";
@@ -23,7 +23,7 @@ interface Activity {
   sessions: { startDateTime: string }[];
 }
 
-export default function ActivitiesPage() {
+function ActivitiesContent() {
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get("category") || "";
   const initialChildId = searchParams.get("childId") || "";
@@ -134,3 +134,29 @@ export default function ActivitiesPage() {
   );
 }
 
+function ActivitiesLoading() {
+  return (
+    <div className="py-6 space-y-6">
+      <div className="h-8 bg-bg-cream rounded animate-pulse w-32" />
+      <div className="h-12 bg-bg-cream rounded-[var(--radius-lg)] animate-pulse" />
+      <div className="flex gap-2">
+        <div className="h-10 bg-bg-cream rounded-full animate-pulse w-24" />
+        <div className="h-10 bg-bg-cream rounded-full animate-pulse w-24" />
+        <div className="h-10 bg-bg-cream rounded-full animate-pulse w-24" />
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <ActivityCardSkeleton key={i} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default function ActivitiesPage() {
+  return (
+    <Suspense fallback={<ActivitiesLoading />}>
+      <ActivitiesContent />
+    </Suspense>
+  );
+}

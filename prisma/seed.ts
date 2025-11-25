@@ -2,29 +2,56 @@ import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
-// Prisma 7 with prisma.config.ts handles datasource automatically
 const prisma = new PrismaClient();
 
 async function main() {
   console.log("🌱 Starting seed...");
-  console.log("📍 Database URL:", process.env.DATABASE_URL?.substring(0, 50) + "...");
 
-  // Create default plan
-  const plan = await prisma.plan.upsert({
-    where: { code: "PLAN_4_PER_MONTH" },
-    update: {},
-    create: {
-      code: "PLAN_4_PER_MONTH",
-      name: "4 Activities / Month",
-      description: "Book up to 4 activities per month for your children",
-      priceCents: 2900,
+  // Create kid-friendly plans
+  const plans = [
+    {
+      code: "LITTLE_EXPLORER",
+      name: "Little Explorer 🌱",
+      description: "Perfect for trying out new activities! 4 adventures per month.",
+      priceCents: 1900,
       currency: "EUR",
       creditsPerPeriod: 4,
-      period: "MONTHLY",
-      isActive: true,
+      emoji: "🌱",
     },
-  });
-  console.log("✅ Created plan:", plan.name);
+    {
+      code: "SUPER_STAR",
+      name: "Super Star ⭐",
+      description: "For curious kids who want more! 8 adventures per month.",
+      priceCents: 2900,
+      currency: "EUR",
+      creditsPerPeriod: 8,
+      emoji: "⭐",
+    },
+    {
+      code: "UNLIMITED_FUN",
+      name: "Unlimited Fun 🚀",
+      description: "The sky's the limit! Unlimited adventures every month.",
+      priceCents: 4900,
+      currency: "EUR",
+      creditsPerPeriod: 99,
+      emoji: "🚀",
+    },
+  ];
+
+  const createdPlans = [];
+  for (const planData of plans) {
+    const plan = await prisma.plan.upsert({
+      where: { code: planData.code },
+      update: planData,
+      create: {
+        ...planData,
+        period: "MONTHLY",
+        isActive: true,
+      },
+    });
+    createdPlans.push(plan);
+    console.log("✅ Created plan:", plan.name);
+  }
 
   // Create admin user
   const adminPassword = await bcrypt.hash("admin123", 12);
@@ -56,23 +83,28 @@ async function main() {
   });
   console.log("✅ Created demo parent:", parent.email);
 
-  // Create subscription for demo parent
+  // Create subscription for demo parent (Super Star plan)
   const now = new Date();
   const periodEnd = new Date(now);
   periodEnd.setMonth(periodEnd.getMonth() + 1);
 
   await prisma.subscription.upsert({
     where: { userId: parent.id },
-    update: {},
+    update: {
+      planId: createdPlans[1].id, // Super Star
+      status: "ACTIVE",
+      currentPeriodStart: now,
+      currentPeriodEnd: periodEnd,
+    },
     create: {
       userId: parent.id,
-      planId: plan.id,
+      planId: createdPlans[1].id, // Super Star
       status: "ACTIVE",
       currentPeriodStart: now,
       currentPeriodEnd: periodEnd,
     },
   });
-  console.log("✅ Created subscription for demo parent");
+  console.log("✅ Created subscription for demo parent (Super Star plan)");
 
   // Create child for demo parent
   const child = await prisma.child.upsert({
@@ -269,6 +301,10 @@ async function main() {
   console.log("\n📝 Demo credentials:");
   console.log("   Admin: admin@kidspass.com / admin123");
   console.log("   Parent: emma@example.com / parent123");
+  console.log("\n💳 Available plans:");
+  for (const plan of createdPlans) {
+    console.log(`   ${plan.name} - €${plan.priceCents / 100}/month (${plan.creditsPerPeriod} activities)`);
+  }
 }
 
 main()

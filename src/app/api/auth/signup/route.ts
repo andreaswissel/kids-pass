@@ -13,6 +13,7 @@ const signupSchema = z.object({
     birthYear: z.string(),
     interests: z.array(z.string()),
   }),
+  planId: z.string().optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -35,25 +36,65 @@ export async function POST(req: NextRequest) {
     // Hash password
     const passwordHash = await hashPassword(validatedData.password);
 
-    // Create user with child
-    const user = await prisma.user.create({
-      data: {
-        email: validatedData.email,
-        passwordHash,
-        name: validatedData.name,
-        city: validatedData.city,
-        role: "PARENT",
-        children: {
-          create: {
-            name: validatedData.child.name,
-            birthDate: new Date(`${validatedData.child.birthYear}-01-01`),
-            interests: validatedData.child.interests,
+    // Get the selected plan or default to first active plan
+    let plan = null;
+    if (validatedData.planId) {
+      plan = await prisma.plan.findUnique({
+        where: { id: validatedData.planId },
+      });
+    }
+    if (!plan) {
+      plan = await prisma.plan.findFirst({
+        where: { isActive: true },
+        orderBy: { priceCents: "asc" },
+      });
+    }
+
+    // Create subscription period (first month free!)
+    const now = new Date();
+    const periodEnd = new Date(now);
+    periodEnd.setMonth(periodEnd.getMonth() + 1);
+
+    // Create user with child and subscription in a transaction
+    const user = await prisma.$transaction(async (tx) => {
+      // Create user with child
+      const newUser = await tx.user.create({
+        data: {
+          email: validatedData.email,
+          passwordHash,
+          name: validatedData.name,
+          city: validatedData.city,
+          role: "PARENT",
+          children: {
+            create: {
+              name: validatedData.child.name,
+              birthDate: new Date(`${validatedData.child.birthYear}-01-01`),
+              interests: validatedData.child.interests,
+            },
           },
         },
-      },
-      include: {
-        children: true,
-      },
+        include: {
+          children: true,
+        },
+      });
+
+      // Create subscription (mocked as active - free trial)
+      if (plan) {
+        await tx.subscription.create({
+          data: {
+            userId: newUser.id,
+            planId: plan.id,
+            status: "ACTIVE",
+            currentPeriodStart: now,
+            currentPeriodEnd: periodEnd,
+            // Mock Stripe IDs for now
+            stripeCustomerId: `mock_cus_${newUser.id}`,
+            stripeSubscriptionId: `mock_sub_${newUser.id}`,
+          },
+        });
+      }
+
+      return newUser;
     });
 
     return NextResponse.json({
@@ -63,13 +104,17 @@ export async function POST(req: NextRequest) {
         email: user.email,
         name: user.name,
       },
+      subscription: plan ? {
+        planName: plan.name,
+        trialEnds: periodEnd.toISOString(),
+      } : null,
     });
   } catch (error) {
     console.error("Signup error:", error);
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Invalid data provided", details: error.errors },
+        { error: "Invalid data provided", details: error.issues },
         { status: 400 }
       );
     }
@@ -80,4 +125,3 @@ export async function POST(req: NextRequest) {
     );
   }
 }
-

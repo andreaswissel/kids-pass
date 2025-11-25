@@ -4,9 +4,13 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-  apiVersion: "2024-11-20.acacia",
-});
+function getStripeClient() {
+  const key = process.env.STRIPE_SECRET_KEY;
+  if (!key) return null;
+  return new Stripe(key, {
+    apiVersion: "2025-11-17.clover",
+  });
+}
 
 export async function POST() {
   try {
@@ -26,6 +30,16 @@ export async function POST() {
       );
     }
 
+    const stripe = getStripeClient();
+
+    if (!stripe) {
+      // For development, return a mock response
+      return NextResponse.json({
+        error: "Stripe not configured. Billing portal not available.",
+        mock: true,
+      });
+    }
+
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: subscription.stripeCustomerId,
       return_url: `${process.env.NEXTAUTH_URL}/app/billing`,
@@ -40,4 +54,3 @@ export async function POST() {
     );
   }
 }
-

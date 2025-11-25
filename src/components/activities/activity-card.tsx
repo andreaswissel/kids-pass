@@ -89,6 +89,7 @@ interface ActivityCardProps {
   };
   animalIcon?: string | null;
   className?: string;
+  style?: React.CSSProperties;
 }
 
 export function ActivityCard({
@@ -100,6 +101,7 @@ export function ActivityCard({
   nextSession,
   animalIcon = "fox",
   className,
+  style,
 }: ActivityCardProps) {
   const AnimalIcon = AnimalIcons[animalIcon || "fox"] || AnimalIcons.fox;
 
@@ -111,6 +113,7 @@ export function ActivityCard({
           getCategoryGradient(category),
           className
         )}
+        style={style}
       >
         <div className="p-5">
           {/* Animal illustration */}

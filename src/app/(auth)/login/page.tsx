@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { signIn } from "next-auth/react";
-import { Button, Input, Card } from "@/components/ui";
+import { Button, Input, Card, LoadingSpinner } from "@/components/ui";
 import { LogIn } from "lucide-react";
 
 const loginSchema = z.object({
@@ -17,7 +17,7 @@ const loginSchema = z.object({
 
 type LoginForm = z.infer<typeof loginSchema>;
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/app";
@@ -122,3 +122,10 @@ export default function LoginPage() {
   );
 }
 
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<Card><div className="py-8 flex justify-center"><LoadingSpinner size="lg" /></div></Card>}>
+      <LoginForm />
+    </Suspense>
+  );
+}

@@ -16,7 +16,6 @@ async function main() {
       priceCents: 1900,
       currency: "EUR",
       creditsPerPeriod: 4,
-      emoji: "🌱",
     },
     {
       code: "SUPER_STAR",
@@ -25,7 +24,6 @@ async function main() {
       priceCents: 2900,
       currency: "EUR",
       creditsPerPeriod: 8,
-      emoji: "⭐",
     },
     {
       code: "UNLIMITED_FUN",
@@ -34,7 +32,6 @@ async function main() {
       priceCents: 4900,
       currency: "EUR",
       creditsPerPeriod: 99,
-      emoji: "🚀",
     },
   ];
 

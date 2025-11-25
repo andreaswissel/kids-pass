@@ -1,36 +1,178 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎨 KidsPass
 
-## Getting Started
+**Flexible activities for curious kids — one membership, endless options.**
 
-First, run the development server:
+Help parents discover and book kids' activities (sports, music, arts, etc.) with a single flexible subscription.
+
+## Tech Stack
+
+- **Next.js 16** with App Router & TypeScript
+- **Tailwind CSS** with custom KidsPass theme
+- **Prisma 7** with PostgreSQL (Neon)
+- **NextAuth.js** for authentication
+- **Stripe** for subscriptions
+- **TanStack Query** for data fetching
+
+---
+
+## 🚀 Getting Started
+
+### 1. Clone & Install
+
+```bash
+git clone <your-repo>
+cd kidspass
+npm install
+```
+
+### 2. Set Up Environment
+
+#### Option A: Local PostgreSQL (Docker)
+
+```bash
+# Start local database
+docker-compose up -d
+
+# Create .env.local
+cat > .env.local << 'EOF'
+DATABASE_URL="postgresql://kidspass:kidspass@localhost:5432/kidspass"
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="local-dev-secret-change-in-prod"
+EOF
+```
+
+#### Option B: Neon Dev Branch
+
+1. Create a dev branch in [Neon Console](https://console.neon.tech)
+2. Copy the connection string
+
+```bash
+cat > .env.local << 'EOF'
+DATABASE_URL="postgresql://user:pass@ep-xxx-dev.neon.tech/neondb?sslmode=require"
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="local-dev-secret-change-in-prod"
+EOF
+```
+
+### 3. Initialize Database
+
+```bash
+# Generate Prisma client
+npm run db:generate
+
+# Push schema to database
+npm run db:push
+
+# Seed demo data
+npm run db:seed
+```
+
+### 4. Run Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🔐 Demo Credentials
 
-## Learn More
+After seeding, you can log in with:
 
-To learn more about Next.js, take a look at the following resources:
+| Role   | Email                  | Password   |
+|--------|------------------------|------------|
+| Admin  | admin@kidspass.com     | admin123   |
+| Parent | emma@example.com       | parent123  |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📁 Project Structure
 
-## Deploy on Vercel
+```
+src/
+├── app/
+│   ├── (auth)/           # Login, Signup pages
+│   ├── app/              # Parent dashboard & features
+│   ├── admin/            # Admin dashboard
+│   └── api/              # API routes
+├── components/
+│   ├── ui/               # Reusable UI components
+│   ├── activities/       # Activity cards, filters
+│   └── layout/           # Navigation, shell
+├── lib/
+│   ├── auth.ts           # NextAuth config
+│   ├── prisma.ts         # Prisma client
+│   └── utils.ts          # Utilities
+└── types/                # TypeScript types
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🌍 Environment Variables
+
+### Local Development (`.env.local`)
+
+```env
+DATABASE_URL="postgresql://..."
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="any-secret-for-local"
+```
+
+### Production (Vercel Dashboard)
+
+| Variable | Description |
+|----------|-------------|
+| `DATABASE_URL` | Neon production connection string |
+| `NEXTAUTH_URL` | `https://your-app.vercel.app` |
+| `NEXTAUTH_SECRET` | Generate with `openssl rand -base64 32` |
+| `STRIPE_SECRET_KEY` | Stripe secret key (optional) |
+| `STRIPE_WEBHOOK_SECRET` | Stripe webhook secret (optional) |
+
+---
+
+## 🗄️ Database Commands
+
+```bash
+npm run db:generate  # Generate Prisma client
+npm run db:push      # Push schema (dev)
+npm run db:migrate   # Create migration (prod)
+npm run db:seed      # Seed demo data
+npm run db:studio    # Open Prisma Studio
+```
+
+---
+
+## 📱 Features
+
+### Parent App
+- ✅ Activity discovery with filters
+- ✅ Activity details & booking
+- ✅ Schedule management
+- ✅ Child profile management
+- ✅ Subscription & billing
+
+### Admin Dashboard
+- ✅ Partner management
+- ✅ Activity management
+- ✅ Session scheduling
+- ✅ Booking overview
+- ✅ User management
+
+---
+
+## 🎨 Design
+
+The UI is inspired by a playful, child-friendly aesthetic:
+- Warm cream backgrounds
+- Golden yellow CTAs
+- Cute animal illustrations (fox, rabbit, bear, dog, panda)
+- Soft pastel category colors
+- Rounded corners throughout
+
+---
+
+## 📄 License
+
+MIT

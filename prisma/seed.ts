@@ -1,10 +1,13 @@
+import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
+// Prisma 7 with prisma.config.ts handles datasource automatically
 const prisma = new PrismaClient();
 
 async function main() {
   console.log("🌱 Starting seed...");
+  console.log("📍 Database URL:", process.env.DATABASE_URL?.substring(0, 50) + "...");
 
   // Create default plan
   const plan = await prisma.plan.upsert({
@@ -131,11 +134,12 @@ async function main() {
 
   const createdPartners = [];
   for (const partnerData of partners) {
+    const partnerId = partnerData.name.toLowerCase().replace(/\s+/g, "-");
     const partner = await prisma.partner.upsert({
-      where: { id: partnerData.name.toLowerCase().replace(/\s+/g, "-") },
+      where: { id: partnerId },
       update: {},
       create: {
-        id: partnerData.name.toLowerCase().replace(/\s+/g, "-"),
+        id: partnerId,
         ...partnerData,
       },
     });
@@ -215,11 +219,12 @@ async function main() {
 
   const createdActivities = [];
   for (const activityData of activities) {
+    const activityId = activityData.title.toLowerCase().replace(/\s+/g, "-");
     const activity = await prisma.activity.upsert({
-      where: { id: activityData.title.toLowerCase().replace(/\s+/g, "-") },
+      where: { id: activityId },
       update: {},
       create: {
-        id: activityData.title.toLowerCase().replace(/\s+/g, "-"),
+        id: activityId,
         ...activityData,
       },
     });
@@ -228,7 +233,9 @@ async function main() {
   }
 
   // Create sessions for the next 4 weeks
-  const sessionsToCreate = [];
+  console.log("⏳ Creating sessions...");
+  let sessionCount = 0;
+  
   for (const activity of createdActivities) {
     for (let week = 0; week < 4; week++) {
       for (let dayOffset = 0; dayOffset < 3; dayOffset++) {
@@ -239,21 +246,24 @@ async function main() {
         const endDate = new Date(startDate);
         endDate.setHours(startDate.getHours() + 1);
 
-        sessionsToCreate.push({
-          activityId: activity.id,
-          startDateTime: startDate,
-          endDateTime: endDate,
-          capacity: 10,
+        const sessionId = `${activity.id}-${week}-${dayOffset}`;
+        
+        await prisma.session_.upsert({
+          where: { id: sessionId },
+          update: {},
+          create: {
+            id: sessionId,
+            activityId: activity.id,
+            startDateTime: startDate,
+            endDateTime: endDate,
+            capacity: 10,
+          },
         });
+        sessionCount++;
       }
     }
   }
-
-  await prisma.session_.createMany({
-    data: sessionsToCreate,
-    skipDuplicates: true,
-  });
-  console.log(`✅ Created ${sessionsToCreate.length} sessions`);
+  console.log(`✅ Created ${sessionCount} sessions`);
 
   console.log("\n🎉 Seed completed successfully!");
   console.log("\n📝 Demo credentials:");
@@ -269,4 +279,3 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
-

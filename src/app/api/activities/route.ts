@@ -11,9 +11,28 @@ export async function GET(req: NextRequest) {
     const dayOfWeek = searchParams.get("dayOfWeek");
     const search = searchParams.get("search");
     const limit = searchParams.get("limit");
+    const city = searchParams.get("city"); // Allow explicit city filter
+
+    // Get current user's city for default filtering
+    const session = await getServerSession(authOptions);
+    let userCity: string | null = null;
+    
+    if (session?.user?.id) {
+      const user = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { city: true },
+      });
+      userCity = user?.city || null;
+    }
 
     // Build where clause
     const where: Record<string, unknown> = {};
+
+    // Filter by city - use explicit city param, or user's city, or show all
+    const filterCity = city || userCity;
+    if (filterCity) {
+      where.city = { equals: filterCity, mode: "insensitive" };
+    }
 
     if (category) {
       where.category = category;
@@ -27,21 +46,18 @@ export async function GET(req: NextRequest) {
     }
 
     // If childId is provided, filter by age
-    if (childId) {
-      const session = await getServerSession(authOptions);
-      if (session?.user?.id) {
-        const child = await prisma.child.findFirst({
-          where: { id: childId, userId: session.user.id },
-        });
+    if (childId && session?.user?.id) {
+      const child = await prisma.child.findFirst({
+        where: { id: childId, userId: session.user.id },
+      });
 
-        if (child) {
-          const age = Math.floor(
-            (Date.now() - new Date(child.birthDate).getTime()) /
-              (365.25 * 24 * 60 * 60 * 1000)
-          );
-          where.ageMin = { lte: age };
-          where.ageMax = { gte: age };
-        }
+      if (child) {
+        const age = Math.floor(
+          (Date.now() - new Date(child.birthDate).getTime()) /
+            (365.25 * 24 * 60 * 60 * 1000)
+        );
+        where.ageMin = { lte: age };
+        where.ageMax = { gte: age };
       }
     }
 
@@ -83,4 +99,3 @@ export async function GET(req: NextRequest) {
     );
   }
 }
-

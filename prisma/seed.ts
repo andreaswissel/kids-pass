@@ -222,7 +222,7 @@ async function main() {
     },
   ];
 
-  const createdPartners: Record<string, typeof partners[0] & { id: string }> = {};
+  const createdPartners: Record<string, { id: string; city: string }> = {};
   for (const partnerData of partners) {
     const partner = await prisma.partner.upsert({
       where: { id: partnerData.id },

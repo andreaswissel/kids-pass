@@ -124,45 +124,45 @@ async function main() {
       id: "city-soccer-club-munich",
       name: "City Soccer Club",
       description: "Premier youth soccer training facility in Munich",
-      address: "450 Bay Street",
+      address: "Säbener Straße 51",
       city: "Munich",
-      postcode: "80331",
+      postcode: "81547",
       contactEmail: "info@citysoccer.de",
     },
     {
       id: "playground-sports-munich",
       name: "Playground Sports",
       description: "Multi-sport facility for kids of all ages",
-      address: "123 Sports Avenue",
+      address: "Landsberger Straße 185",
       city: "Munich",
-      postcode: "80333",
+      postcode: "80687",
       contactEmail: "hello@playgroundsports.de",
     },
     {
       id: "harmony-music-school-munich",
       name: "Harmony Music School",
       description: "Expert music education for young learners",
-      address: "78 Music Lane",
+      address: "Leopoldstraße 56",
       city: "Munich",
-      postcode: "80336",
+      postcode: "80802",
       contactEmail: "contact@harmonymusic.de",
     },
     {
       id: "creative-kids-studio-munich",
       name: "Creative Kids Studio",
       description: "Art and creativity workshops for children",
-      address: "55 Art Street",
+      address: "Türkenstraße 89",
       city: "Munich",
-      postcode: "80339",
+      postcode: "80799",
       contactEmail: "info@creativekids.de",
     },
     {
       id: "climbing-gym-munich",
       name: "Climbing Gym",
       description: "Indoor climbing and bouldering for kids",
-      address: "200 Boulder Road",
+      address: "Thalkirchner Straße 207",
       city: "Munich",
-      postcode: "80335",
+      postcode: "81371",
       contactEmail: "climb@climbinggym.de",
     },
     // Hamburg Partners
@@ -233,9 +233,9 @@ async function main() {
     console.log("✅ Created partner:", partner.name, `(${partner.city})`);
   }
 
-  // Create activities for both cities
+  // Create activities with real coordinates
   const activities = [
-    // Munich Activities
+    // Munich Activities (coordinates around city center)
     {
       id: "soccer-munich",
       partnerId: "city-soccer-club-munich",
@@ -244,8 +244,10 @@ async function main() {
       category: "SPORTS" as const,
       ageMin: 6,
       ageMax: 12,
-      locationAddress: "450 Bay Street",
+      locationAddress: "Säbener Straße 51, Munich",
       city: "Munich",
+      latitude: 48.1082,
+      longitude: 11.5427,
       animalIcon: "rabbit",
     },
     {
@@ -256,8 +258,10 @@ async function main() {
       category: "SPORTS" as const,
       ageMin: 7,
       ageMax: 14,
-      locationAddress: "123 Sports Avenue",
+      locationAddress: "Landsberger Straße 185, Munich",
       city: "Munich",
+      latitude: 48.1419,
+      longitude: 11.5247,
       animalIcon: "fox",
     },
     {
@@ -268,8 +272,10 @@ async function main() {
       category: "MUSIC" as const,
       ageMin: 5,
       ageMax: 12,
-      locationAddress: "78 Music Lane",
+      locationAddress: "Leopoldstraße 56, Munich",
       city: "Munich",
+      latitude: 48.1571,
+      longitude: 11.5862,
       animalIcon: "dog",
     },
     {
@@ -280,8 +286,10 @@ async function main() {
       category: "ARTS" as const,
       ageMin: 4,
       ageMax: 10,
-      locationAddress: "55 Art Street",
+      locationAddress: "Türkenstraße 89, Munich",
       city: "Munich",
+      latitude: 48.1544,
+      longitude: 11.5758,
       animalIcon: "panda",
     },
     {
@@ -292,8 +300,10 @@ async function main() {
       category: "SPORTS" as const,
       ageMin: 4,
       ageMax: 10,
-      locationAddress: "200 Boulder Road",
+      locationAddress: "Thalkirchner Straße 207, Munich",
       city: "Munich",
+      latitude: 48.1099,
+      longitude: 11.5519,
       animalIcon: "bear",
     },
     {
@@ -304,11 +314,13 @@ async function main() {
       category: "OUTDOOR" as const,
       ageMin: 6,
       ageMax: 14,
-      locationAddress: "200 Boulder Road",
+      locationAddress: "Thalkirchner Straße 207, Munich",
       city: "Munich",
+      latitude: 48.1099,
+      longitude: 11.5519,
       animalIcon: "bear",
     },
-    // Hamburg Activities
+    // Hamburg Activities (real coordinates)
     {
       id: "fussball-hamburg",
       partnerId: "hsv-fussballschule",
@@ -317,8 +329,10 @@ async function main() {
       category: "SPORTS" as const,
       ageMin: 5,
       ageMax: 14,
-      locationAddress: "Sylvesterallee 7",
+      locationAddress: "Sylvesterallee 7, Hamburg",
       city: "Hamburg",
+      latitude: 53.5871,
+      longitude: 9.8986,
       animalIcon: "fox",
     },
     {
@@ -329,8 +343,10 @@ async function main() {
       category: "SWIMMING" as const,
       ageMin: 4,
       ageMax: 12,
-      locationAddress: "Bundesstraße 107",
+      locationAddress: "Bundesstraße 107, Hamburg",
       city: "Hamburg",
+      latitude: 53.5687,
+      longitude: 9.9748,
       animalIcon: "rabbit",
     },
     {
@@ -341,8 +357,10 @@ async function main() {
       category: "DANCE" as const,
       ageMin: 6,
       ageMax: 14,
-      locationAddress: "Hongkongstraße 7",
+      locationAddress: "Hongkongstraße 7, Hamburg",
       city: "Hamburg",
+      latitude: 53.5417,
+      longitude: 9.9888,
       animalIcon: "panda",
     },
     {
@@ -353,8 +371,10 @@ async function main() {
       category: "DANCE" as const,
       ageMin: 4,
       ageMax: 12,
-      locationAddress: "Hongkongstraße 7",
+      locationAddress: "Hongkongstraße 7, Hamburg",
       city: "Hamburg",
+      latitude: 53.5417,
+      longitude: 9.9888,
       animalIcon: "rabbit",
     },
     {
@@ -365,8 +385,10 @@ async function main() {
       category: "CREATIVE" as const,
       ageMin: 5,
       ageMax: 12,
-      locationAddress: "Kehrwieder 2",
+      locationAddress: "Kehrwieder 2, Hamburg",
       city: "Hamburg",
+      latitude: 53.5437,
+      longitude: 9.9886,
       animalIcon: "bear",
     },
     {
@@ -377,8 +399,10 @@ async function main() {
       category: "ARTS" as const,
       ageMin: 4,
       ageMax: 10,
-      locationAddress: "Kehrwieder 2",
+      locationAddress: "Kehrwieder 2, Hamburg",
       city: "Hamburg",
+      latitude: 53.5437,
+      longitude: 9.9886,
       animalIcon: "dog",
     },
     {
@@ -389,8 +413,10 @@ async function main() {
       category: "OUTDOOR" as const,
       ageMin: 6,
       ageMax: 14,
-      locationAddress: "Kieler Straße 575",
+      locationAddress: "Kieler Straße 575, Hamburg",
       city: "Hamburg",
+      latitude: 53.5918,
+      longitude: 9.9145,
       animalIcon: "bear",
     },
     {
@@ -401,8 +427,10 @@ async function main() {
       category: "OUTDOOR" as const,
       ageMin: 5,
       ageMax: 12,
-      locationAddress: "Kieler Straße 575",
+      locationAddress: "Kieler Straße 575, Hamburg",
       city: "Hamburg",
+      latitude: 53.5918,
+      longitude: 9.9145,
       animalIcon: "fox",
     },
     {
@@ -413,8 +441,10 @@ async function main() {
       category: "MUSIC" as const,
       ageMin: 6,
       ageMax: 14,
-      locationAddress: "Mittelweg 42",
+      locationAddress: "Mittelweg 42, Hamburg",
       city: "Hamburg",
+      latitude: 53.5698,
+      longitude: 9.9965,
       animalIcon: "dog",
     },
     {
@@ -425,8 +455,10 @@ async function main() {
       category: "MUSIC" as const,
       ageMin: 5,
       ageMax: 14,
-      locationAddress: "Mittelweg 42",
+      locationAddress: "Mittelweg 42, Hamburg",
       city: "Hamburg",
+      latitude: 53.5698,
+      longitude: 9.9965,
       animalIcon: "panda",
     },
   ];
@@ -435,11 +467,14 @@ async function main() {
   for (const activityData of activities) {
     const activity = await prisma.activity.upsert({
       where: { id: activityData.id },
-      update: {},
+      update: {
+        latitude: activityData.latitude,
+        longitude: activityData.longitude,
+      },
       create: activityData,
     });
     createdActivities.push(activity);
-    console.log("✅ Created activity:", activity.title, `(${activity.city})`);
+    console.log("✅ Created activity:", activity.title, `(${activity.city}) 📍`);
   }
 
   // Create sessions for the next 4 weeks
@@ -480,6 +515,7 @@ async function main() {
   console.log("   Admin: admin@kidspass.com / admin123");
   console.log("   Parent: emma@example.com / parent123");
   console.log("\n🏙️ Available cities: Munich, Hamburg");
+  console.log("🗺️ All activities have map coordinates!");
   console.log("\n💳 Available plans:");
   for (const plan of createdPlans) {
     console.log(`   ${plan.name} - €${plan.priceCents / 100}/month (${plan.creditsPerPeriod} activities)`);

@@ -145,6 +145,8 @@ model Activity {
   skillLevel      String?
   locationAddress String
   city            String
+  latitude        Float?
+  longitude       Float?
   imageUrl        String?
   animalIcon      String?  // fox, rabbit, bear, dog, etc.
   colorTheme      String?  // pastel color for card background

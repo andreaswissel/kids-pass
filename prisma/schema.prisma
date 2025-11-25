@@ -1,0 +1,236 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Enums
+enum Role {
+  PARENT
+  ADMIN
+}
+
+enum Category {
+  SPORTS
+  MUSIC
+  ARTS
+  OUTDOOR
+  CREATIVE
+  DANCE
+  SWIMMING
+  MARTIAL_ARTS
+}
+
+enum BookingStatus {
+  BOOKED
+  CANCELLED
+  ATTENDED
+  NO_SHOW
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  PAUSED
+  PAST_DUE
+}
+
+enum Period {
+  MONTHLY
+  YEARLY
+}
+
+// NextAuth.js required models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Core Models
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  passwordHash  String?
+  name          String?
+  image         String?
+  role          Role      @default(PARENT)
+  city          String?
+  postcode      String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts     Account[]
+  sessions     Session[]
+  children     Child[]
+  bookings     Booking[]
+  subscription Subscription?
+}
+
+model Child {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  birthDate DateTime
+  interests String[] // Categories as strings
+  avatarUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bookings Booking[]
+}
+
+model Partner {
+  id           String   @id @default(cuid())
+  name         String
+  description  String?  @db.Text
+  address      String
+  city         String
+  postcode     String?
+  contactEmail String?
+  contactPhone String?
+  websiteUrl   String?
+  logoUrl      String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  activities Activity[]
+}
+
+model Activity {
+  id              String   @id @default(cuid())
+  partnerId       String
+  title           String
+  description     String?  @db.Text
+  category        Category
+  ageMin          Int
+  ageMax          Int
+  skillLevel      String?
+  locationAddress String
+  city            String
+  imageUrl        String?
+  animalIcon      String?  // fox, rabbit, bear, dog, etc.
+  colorTheme      String?  // pastel color for card background
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  partner  Partner   @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  sessions Session_[]
+}
+
+// Named Session_ to avoid conflict with NextAuth Session
+model Session_ {
+  id            String   @id @default(cuid())
+  activityId    String
+  startDateTime DateTime
+  endDateTime   DateTime
+  capacity      Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  activity Activity  @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  bookings Booking[]
+
+  @@map("activity_sessions")
+}
+
+model Booking {
+  id          String        @id @default(cuid())
+  sessionId   String
+  childId     String
+  userId      String
+  status      BookingStatus @default(BOOKED)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  cancelledAt DateTime?
+
+  session Session_ @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  child   Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, childId])
+}
+
+model Plan {
+  id               String   @id @default(cuid())
+  code             String   @unique
+  name             String
+  description      String?
+  priceCents       Int
+  currency         String   @default("EUR")
+  creditsPerPeriod Int
+  period           Period   @default(MONTHLY)
+  stripePriceId    String?
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  subscriptions Subscription[]
+}
+
+model Subscription {
+  id                   String             @id @default(cuid())
+  userId               String             @unique
+  planId               String
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  status               SubscriptionStatus @default(ACTIVE)
+  currentPeriodStart   DateTime
+  currentPeriodEnd     DateTime
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  user  User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan  Plan    @relation(fields: [planId], references: [id])
+  usage Usage[]
+}
+
+model Usage {
+  id             String   @id @default(cuid())
+  subscriptionId String
+  periodStart    DateTime
+  periodEnd      DateTime
+  usedCredits    Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+
+  @@unique([subscriptionId, periodStart])
+}
